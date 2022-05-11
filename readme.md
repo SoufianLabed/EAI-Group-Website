@@ -7,9 +7,9 @@ EAI Group want a e-commerce application where user can buy some product from res
 
 
 * `GET /getUser/{username}` : Retrieve User by Username
-* `POST /signup` : Retrieve User by Username
-* `PUT /updateUser` : update User existing 
-* `DELETE /deleteUser` : delete User existing 
+* `POST /signup` : Create User
+* `PUT /updateUser` : Update existing User 
+* `DELETE /deleteUser` : Delete existing User 
 
 ### Required
 
