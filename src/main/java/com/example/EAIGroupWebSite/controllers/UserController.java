@@ -1,6 +1,6 @@
 package com.example.EAIGroupWebSite.controllers;
 import com.example.EAIGroupWebSite.models.User;
-import com.example.EAIGroupWebSite.payload.request.SignupRequest;
+import com.example.EAIGroupWebSite.payload.request.UserRequest;
 import com.example.EAIGroupWebSite.payload.response.MessageResponse;
 import com.example.EAIGroupWebSite.services.UserService;
 import io.swagger.annotations.ApiResponse;
@@ -26,7 +26,7 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal sever error")
     })
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRequest signUpRequest) {
         return ResponseEntity.ok(new MessageResponse(userService.createUser(signUpRequest)));
     }
     @GetMapping("/getUser/{username}")
@@ -46,7 +46,7 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal sever error")
     })
-    public ResponseEntity<?> updateUser(@Valid @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UserRequest user) {
         return ResponseEntity.ok(new MessageResponse(userService.updateUser(user)));
     }
     @DeleteMapping("/deleteUser")

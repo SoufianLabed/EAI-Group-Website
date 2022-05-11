@@ -4,7 +4,7 @@ import com.example.EAIGroupWebSite.Utils.Utils;
 import com.example.EAIGroupWebSite.models.ERole;
 import com.example.EAIGroupWebSite.models.Role;
 import com.example.EAIGroupWebSite.models.User;
-import com.example.EAIGroupWebSite.payload.request.SignupRequest;
+import com.example.EAIGroupWebSite.payload.request.UserRequest;
 import com.example.EAIGroupWebSite.repository.RoleRepository;
 import com.example.EAIGroupWebSite.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,25 +34,25 @@ public class UserService {
             return "user not found";
         }
     }
-    public String createUser(SignupRequest signUpRequest){
+    public String createUser(UserRequest userRequest){
         // Check if username or email are not taken and if the new email is valid.
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        if (userRepository.existsByUsername(userRequest.getUsername())) {
             return "Error: Username is already taken!";
         }
-        if(!Utils.emailCheck(signUpRequest.getEmail())){
+        if(!Utils.emailCheck(userRequest.getEmail())){
             return "Error: Email is not accepted !";
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
             return "Error: Email is already in use!";
         }
         User user = User.builder()
-                .username(signUpRequest.getUsername())
-                .email(signUpRequest.getEmail())
-                .password(encoder.encode(signUpRequest.getPassword()))
-                .country(signUpRequest.getCountry())
-                .description(signUpRequest.getDescription())
+                .username(userRequest.getUsername())
+                .email(userRequest.getEmail())
+                .password(encoder.encode(userRequest.getPassword()))
+                .country(userRequest.getCountry())
+                .description(userRequest.getDescription())
                 .build();
-        Set<String> strRoles = signUpRequest.getRole();
+        Set<String> strRoles = userRequest.getRole();
         Set<Role> roles = new HashSet<>();
         if (strRoles == null) {
             Role userRole = roleRepository.findByName(ERole.ROLE_USER)
@@ -83,26 +83,69 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
         // set Admin role if isAdmin is true and the user is from France.
-        if(!roles.contains(adminRole) && signUpRequest.getCountry().equalsIgnoreCase("france") && signUpRequest.getIsAdmin()){
+        if(!roles.contains(adminRole) && userRequest.getCountry().equalsIgnoreCase("france") && userRequest.getIsAdmin()){
             roles.add(adminRole);
         }
         user.setRoles(roles);
         userRepository.save(user);
         return "User registered successfully !";
     }
-    public String updateUser(User user){
-        // Check if username or email are not taken and if the new email is valid.
-        if (userRepository.existsById(user.getId())){
-            if (userRepository.existsByUsername(user.getUsername())) {
-                return "Error: Username is already taken!";
+    public String updateUser(UserRequest userToUpdate){
+        // Check changes validity
+        if (userRepository.existsById(userToUpdate.getId())){
+            if (userRepository.existsByUsername(userToUpdate.getUsername())) {
+                return "Error : Username is already taken!";
             }
-            if(!Utils.emailCheck(user.getEmail())){
+            if((userToUpdate.getEmail() == null) || (userToUpdate.getPassword() == null) || (userToUpdate.getUsername() == null)){
+                return "Error : email, password and username can not be null";
+            }
+            if(!Utils.emailCheck(userToUpdate.getEmail())) {
                 return "Error: Email is not accepted !";
             }
-            if (userRepository.existsByEmail(user.getEmail())) {
-                return "Error: Email is already in use!";
+            if (userRepository.existsByEmail(userToUpdate.getEmail())) {
+                return "Error: Email is already in suse!";
             }
-
+            User user = User.builder()
+                    .id(userToUpdate.getId())
+                    .username(userToUpdate.getUsername())
+                    .email(userToUpdate.getEmail())
+                    .password(encoder.encode(userToUpdate.getPassword()))
+                    .country(userToUpdate.getCountry())
+                    .description(userToUpdate.getDescription())
+                    .build();
+            Set<String> strRoles = userToUpdate.getRole();
+            Set<Role> roles = new HashSet<>();
+            if (strRoles == null) {
+                Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                        .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                roles.add(userRole);
+            } else {
+                strRoles.forEach(role -> {
+                    switch (role) {
+                        case "admin" -> {
+                            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            roles.add(adminRole);
+                        }
+                        case "cm" -> {
+                            Role cmRole = roleRepository.findByName(ERole.ROLE_COMMUNITY_MANAGER)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            roles.add(cmRole);
+                        }
+                        case "supplier" -> {
+                            Role supplierRole = roleRepository.findByName(ERole.ROLE_SUPPLIER)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            roles.add(supplierRole);
+                        }
+                        default -> {
+                            Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+                                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+                            roles.add(userRole);
+                        }
+                    }
+                });
+            }
+            user.setRoles(roles);
             User userUpdated = userRepository.save(user);
             return (userUpdated.toString());
         }
