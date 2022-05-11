@@ -24,7 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        //Only Auth path doesn't require authenticate. At the moment it is not very useful but after implement authentication part it will be.
+        //Only Auth path doesn't require authenticate. For now, it is not very useful but after implement authentication part it will be.
         http.cors().and().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/auth/**").permitAll()
