@@ -6,8 +6,11 @@ import com.example.EAIGroupWebSite.services.UserService;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import javax.validation.Valid;
 
 
@@ -26,8 +29,8 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal sever error")
     })
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRequest signUpRequest) {
-        return ResponseEntity.ok(new MessageResponse(userService.createUser(signUpRequest)));
+    public ResponseEntity<User> registerUser(@Valid @RequestBody UserRequest signUpRequest) {
+        return ResponseEntity.ok(userService.createOrUpdateUser(signUpRequest));
     }
     @GetMapping("/getUser/{username}")
     @ApiResponses(value ={
@@ -36,8 +39,12 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal sever error")
     })
-    public ResponseEntity<?> getUserByUsername(@PathVariable String username)  {
-        return ResponseEntity.ok(userService.getUserByUsername(username));
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        try{
+            return ResponseEntity.ok(userService.getUserByUsername(username));
+        } catch (RuntimeException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"USER NOT FOUND",e);
+        }
     }
     @PutMapping("/updateUser")
     @ApiResponses(value ={
@@ -46,8 +53,8 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal sever error")
     })
-    public ResponseEntity<?> updateUser(@Valid @RequestBody UserRequest user) {
-        return ResponseEntity.ok(new MessageResponse(userService.updateUser(user)));
+    public ResponseEntity<User> updateUser(@Valid @RequestBody UserRequest user) {
+            return ResponseEntity.ok(userService.createOrUpdateUser(user));
     }
     @DeleteMapping("/deleteUser")
     @ApiResponses(value ={
@@ -56,7 +63,11 @@ public class UserController {
             @ApiResponse(code = 400, message = "Bad request"),
             @ApiResponse(code = 500, message = "Internal sever error")
     })
-    public ResponseEntity<?> deleteUser(@Valid @RequestBody User user) {
-        return ResponseEntity.ok(new MessageResponse(userService.deleteUser(user)));
+    public ResponseEntity<String> deleteUser(@Valid @RequestBody User user) {
+        try{
+            return ResponseEntity.ok(userService.deleteUser(user));
+        } catch (RuntimeException e){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"USER NOT FOUND",e);
+        }
     }
 }

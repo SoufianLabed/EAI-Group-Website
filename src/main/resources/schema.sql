@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS roles CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS user_roles CASCADE;
+DROP SEQUENCE IF EXISTS roles_id_seq;
+DROP SEQUENCE IF EXISTS users_id_seq;
+
 CREATE SEQUENCE roles_id_seq;
 CREATE SEQUENCE users_id_seq;
 
@@ -39,12 +45,3 @@ CREATE TABLE public.user_roles
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
-
-insert into roles (id, name)
-values (1,'ROLE_USER');
-insert into public.roles (id, name)
-values (2,'ROLE_COMMUNITY_MANAGER');
-insert into public.roles (id, name)
-values (3,'ROLE_ADMIN');
-insert into public.roles (id, name)
-values (4,'ROLE_SUPPLIER');

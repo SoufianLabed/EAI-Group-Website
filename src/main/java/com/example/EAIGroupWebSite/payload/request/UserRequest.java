@@ -1,5 +1,6 @@
 package com.example.EAIGroupWebSite.payload.request;
 
+import java.util.List;
 import java.util.Set;
 import javax.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ public class UserRequest {
     @Email
     private String email;
 
-    private Set<String> role;
+    private List<String> roles;
 
     @NotBlank
     @Size(min = 6, max = 40)
