@@ -7,16 +7,13 @@ import com.example.EAIGroupWebSite.models.User;
 import com.example.EAIGroupWebSite.payload.request.UserRequest;
 import com.example.EAIGroupWebSite.repository.RoleRepository;
 import com.example.EAIGroupWebSite.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 
 @Service
@@ -31,9 +28,10 @@ public class UserService {
 
     public User getUserByUsername(String username){
         Optional<User> user = userRepository.findByUsername(username);
-
         return user.orElseThrow(() -> new RuntimeException("Error: User is not found."));
-
+    }
+    public List<Role> getRoles(){
+        return roleRepository.findAll();
     }
     public User createOrUpdateUser(UserRequest userRequest) {
                 List<String> strRoles = userRequest.getRoles();
@@ -51,9 +49,7 @@ public class UserService {
                 if (userRepository.existsByEmail(userRequest.getEmail())) {
                     throw new RuntimeException("Error: Email is already use!");
                 }
-                System.out.println(userRequest.getId());
                 if(userRequest.getId()== null){
-                    System.out.println("HELLO WORLD");
                     user = User.builder()
                             .username(userRequest.getUsername())
                             .email(userRequest.getEmail())
@@ -88,7 +84,6 @@ public class UserService {
                    roles =  strRoles.stream().map(role ->{
                         switch (role) {
                             case "admin" -> {
-                                //roles.add(adminRole);
                                 return roleRepository.findByName(ERole.ROLE_ADMIN)
                                         .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
                             }
