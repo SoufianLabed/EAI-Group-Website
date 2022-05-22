@@ -19,5 +19,3 @@ After that, don't forget to replace Postgres DB properties in application.proper
 * `spring.datasource.url`
 * `spring.datasource.username`
 * `spring.datasource.password`
-
-Moreover, you have to change the owner in the SQL Script.
